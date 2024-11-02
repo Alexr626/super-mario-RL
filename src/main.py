@@ -26,10 +26,13 @@ def train():
         while not done:
             action = agent.select_action(state)
             next_state, reward, terminated, truncated, _ = env.step(action.item())
+            done = terminated or truncated
+
             next_frames_array = np.array(next_state._frames)
             next_state_tensor = torch.tensor(next_frames_array).unsqueeze(0).float().squeeze(-1)
             reward_tensor = torch.tensor([reward], dtype=torch.float32)
-            done_tensor = torch.tensor([bool(done)], dtype=torch.uint8)
+            done_tensor = torch.tensor([done], dtype=torch.bool)
+
             agent.memory.push(state, action, reward_tensor, next_state_tensor, done_tensor)
             agent.optimize_model()
             state = next_state_tensor
