@@ -12,12 +12,12 @@ Transition = namedtuple('Transition', ('state', 'action', 'reward', 'next_state'
 class Agent:
     """Interacts with and learns from the environment."""
 
-    def __init__(self, action_size):
+    def __init__(self, action_size, timestamp):
         self.action_size = action_size
         self.policy_net = DQN(action_size).to(DEVICE)
         self.target_net = DQN(action_size).to(DEVICE)
         self.optimizer = optim.Adam(self.policy_net.parameters(), lr=LEARNING_RATE)
-        self.memory = ReplayMemory(MEMORY_CAPACITY)
+        self.memory = ReplayMemory(MEMORY_CAPACITY, timestamp)
         self.steps_done = 0
         self.update_target_net()
         self.loss = 0

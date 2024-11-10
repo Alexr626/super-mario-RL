@@ -31,3 +31,4 @@ urllib3==2.2.2
 zipp==3.19.2
 opencv-python==4.10.0.84
 tensorboard==2.14.0
+h5py==3.11.0

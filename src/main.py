@@ -13,9 +13,10 @@ import csv
 def train():
 
     timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-    log_filename = create_save_files_directories(timestamp)
     env = make_env()
-    agent = Agent(env.action_space.n)
+    save_frames = env.render_mode == "rgb_array"
+    log_filename = create_save_files_directories(timestamp, save_frames)
+    agent = Agent(env.action_space.n, timestamp)
 
     for episode in range(NUM_EPISODES):
         episode_start_time = datetime.now().time()
@@ -32,6 +33,7 @@ def train():
 
         frames_array = np.array(state._frames)
         state = torch.tensor(frames_array).unsqueeze(0).float().squeeze(-1)
+        #print(state)
         total_reward = 0
         done = False
 
@@ -44,6 +46,8 @@ def train():
 
             next_frames_array = np.array(next_state._frames)
             next_state_tensor = torch.tensor(next_frames_array).unsqueeze(0).float().squeeze(-1)
+            # print(next_state_tensor)
+            # print(next_state_tensor.shape)
             reward_tensor = torch.tensor([reward], dtype=torch.float32)
             done_tensor = torch.tensor([done], dtype=torch.bool)
 
@@ -55,7 +59,7 @@ def train():
             if agent.steps_done % TARGET_UPDATE == 0:
                 agent.update_target_net()
 
-            if frame_counter % FRAME_SAVE_INTERVAL == 0 and env.render_mode == "rgb_array":
+            if frame_counter % FRAME_SAVE_INTERVAL == 0 and save_frames:
                 frame = env.render()
                 image = Image.fromarray(frame)
                 image.save(f'frames/{timestamp}/episode_{episode}_step_{frame_counter}.png')
@@ -72,16 +76,19 @@ def train():
     env.close()
     agent.memory.close()
 
-def create_save_files_directories(timestamp):
+def create_save_files_directories(timestamp, save_frames):
     if not os.path.exists('frames'):
         os.makedirs('frames')
 
-    os.makedirs(f"frames/{timestamp}")
+    if save_frames:
+        os.makedirs(f"frames/{timestamp}")
 
-    if not os.path.exists('logs'):
-        os.makedirs('logs')
+    if not os.path.exists('episode_logs'):
+        os.makedirs('episode_logs')
 
-    log_filename = 'logs/episode_log.csv'
+    os.makedirs(f"episode_logs/{timestamp}")
+
+    log_filename = f'episode_logs/{timestamp}/episode_log.csv'
 
     if not os.path.exists(log_filename):
         with open(log_filename, 'w', newline='') as csvfile:
