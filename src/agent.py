@@ -30,9 +30,10 @@ class Agent:
         if random.random() > eps:
             with torch.no_grad():
                 state = state.to(DEVICE)
-                return self.policy_net(state).argmax(1).cpu().unsqueeze(1)
+                action = self.policy_net(state).argmax(1).cpu().unsqueeze(1)
         else:
-            return torch.tensor([[random.randrange(self.action_size)]], dtype=torch.long)
+            action = torch.tensor([[random.randrange(self.action_size)]], dtype=torch.long)
+        return action, eps
 
     def optimize_model(self):
         """Perform a single optimization step."""
