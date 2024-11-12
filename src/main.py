@@ -1,5 +1,4 @@
 # main.py
-import torch
 from env import make_env
 from agent import Agent
 from utils.utils import save_model
@@ -14,6 +13,8 @@ import threading
 import queue
 import cProfile
 import pstats
+import io
+import torch.profiler
 
 def train():
 
@@ -55,7 +56,6 @@ def train():
             total_reward = 0
             done = False
             current_level = start_level
-
             while not done:
                 frame_counter += 1
 
@@ -133,11 +133,6 @@ def train():
 
         # Close environment and ReplayMemory
         env.close()
-        agent.memory.close()
-
-    # Close environment and ReplayMemory
-    env.close()
-    agent.memory.close()
 
 def create_save_files_directories(timestamp, save_frames):
     """
@@ -218,11 +213,12 @@ def transition_writer_thread(transition_queue, transitions_filename):
             writer.writerows(buffer)
 
 if __name__ == "__main__":
-    # profiler = cProfile.Profile()
-    # profiler.enable()
-    # train()
-    # profiler.disable()
-    # stats = pstats.Stats(profiler).sort_stats('cumtime')
-    # stats.print_stats(10)
-
+    profiler = cProfile.Profile()
+    profiler.enable()
     train()
+    profiler.disable()
+    s = io.StringIO()
+    sortby = 'cumulative'
+    ps = pstats.Stats(profiler, stream=s).sort_stats(sortby)
+    ps.print_stats(10)  # Print top 10 functions
+    print(s.getvalue())
