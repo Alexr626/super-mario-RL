@@ -1,0 +1,9 @@
+name: super-mario-RL
+channels:
+  - defaults
+dependencies:
+  - cudatoolkit=11.2
+  - python=3.8
+  - pip
+  - pip:
+      - -r requirements.txt
