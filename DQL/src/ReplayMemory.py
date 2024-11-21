@@ -6,7 +6,6 @@ Transition = namedtuple('Transition', ('state', 'action', 'reward', 'next_state'
 
 class ReplayMemory:
     def __init__(self, capacity):
-
         self.memory = deque(maxlen=capacity)
 
     def push(self, state, action, reward, next_state, done, epsilon):

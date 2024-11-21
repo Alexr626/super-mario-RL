@@ -1,11 +1,10 @@
 # agent.py
 import random
-import torch
 import torch.nn.functional as F
 import torch.optim as optim
 from DQN import DQN
 from ReplayMemory import ReplayMemory
-from utils.config import *
+from DQL.utils.config import *
 from collections import namedtuple
 
 Transition = namedtuple('Transition', ('state', 'action', 'reward', 'next_state', 'done', 'epsilon'))
