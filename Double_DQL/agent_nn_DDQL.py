@@ -1,6 +1,8 @@
+# agent_nn_DDQL.py
 import torch
 from torch import nn
 import numpy as np
+from utils.config import DEVICE
 
 class CNN(nn.Module):
     def __init__(self, input_shape, n_actions, freeze=False):
@@ -29,7 +31,7 @@ class CNN(nn.Module):
         if freeze:
             self._freeze()
         
-        self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        self.device = DEVICE
         self.to(self.device)
 
     def forward(self, x):

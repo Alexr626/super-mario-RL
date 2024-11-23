@@ -1,22 +1,24 @@
+# agent_DDQL.py
 import torch
 import numpy as np
-from agent_nn import CNN
+from agent_nn_DDQL import CNN
+from utils.config import *
 
 from tensordict import TensorDict
 from torchrl.data import TensorDictReplayBuffer, LazyMemmapStorage
 
-class Agent:
+class Agent_DDQL:
     def __init__(self, 
                  input_dims, 
                  num_actions, 
                  lr=0.00025, 
                  gamma=0.9, 
-                 epsilon=1.0, 
+                 epsilon=EPS_START,
                  eps_decay=0.99999975, 
-                 eps_min=0.1, 
-                 replay_buffer_capacity=100_000, 
-                 batch_size=32, 
-                 sync_network_rate=10000):
+                 eps_min=EPS_END,
+                 replay_buffer_capacity=MEMORY_CAPACITY,
+                 batch_size=BATCH_SIZE,
+                 sync_network_rate=SYNC_NETWORK_RATE):
         
         self.num_actions = num_actions
         self.learn_step_counter = 0
@@ -84,7 +86,6 @@ class Agent:
             return
         
         self.sync_networks()
-        
         self.optimizer.zero_grad()
 
         samples = self.replay_buffer.sample(self.batch_size).to(self.online_network.device)
@@ -92,6 +93,9 @@ class Agent:
         keys = ("state", "action", "reward", "next_state", "done")
 
         states, actions, rewards, next_states, dones = [samples[key] for key in keys]
+
+        print(states.shape)
+        print(next_states.shape)
 
         predicted_q_values = self.online_network(states) # Shape is (batch_size, n_actions)
         predicted_q_values = predicted_q_values[np.arange(self.batch_size), actions.squeeze()]
