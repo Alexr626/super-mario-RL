@@ -1,0 +1,32 @@
+#!/bin/bash
+
+
+#SBATCH --job-name=mario_rl
+#SBATCH --nodes=1
+#SBATCH --cpus-per-task=8
+#SBATCH --gres=gpu:1
+#SBATCH --mem=32G
+#SBATCH --time=6:00:00
+#SBATCH --account=liu32_1378
+#SBATCH --output=/home1/romanus/output/output_%j.log
+
+ulimit -c unlimited
+
+module load conda
+
+source /spack/conda/miniforge3/24.3.0/etc/profile.d/conda.sh
+
+conda activate super-mario-RL
+
+export PYTHONPATH=$HOME/super-mario-RL:$PYTHONPATH
+
+echo "Conda version: $(conda --version)"
+echo "Active Conda Environment: $(conda info --envs | grep '*' | awk '{print $1}')"
+python --version
+echo "Python executable: $(which python)"
+echo "PYTHONPATH: $PYTHONPATH"
+echo "JOB_ID: $JOB_ID"
+
+cd $HOME/super-mario-RL/DQL
+
+python src/main_DQL.py --job_id $JOB_ID
