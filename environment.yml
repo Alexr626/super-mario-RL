@@ -1,0 +1,10 @@
+name: super-mario-RL
+channels:
+  - defaults
+  - pytorch
+dependencies:
+  - python=3.10
+  - cudatoolkit=11.2
+  - pip
+  - pip:
+      - -r requirements.txt

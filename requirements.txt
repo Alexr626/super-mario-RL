@@ -12,6 +12,7 @@ fsspec==2023.4.0
 gym==0.26.2
 gym-notices==0.0.8
 gym-super-mario-bros==7.4.0
+h5py==3.12.1
 idna==3.4
 imageio==2.31.1
 imageio-ffmpeg==0.4.8
