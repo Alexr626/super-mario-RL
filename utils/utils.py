@@ -18,30 +18,33 @@ def load_model(model, filename):
 def create_save_files_directories(timestamp, job_id, type):
     # Create frames directory if needed
 
-    os.makedirs(f"frames", exist_ok=True)
-    frames_dir = f"frames/{job_id}_{type}_{timestamp}"
+    os.makedirs(f"frames/{timestamp}", exist_ok=True)
+    frames_dir = f"frames/{timestamp}/{job_id}_{type}"
     os.makedirs(frames_dir, exist_ok=True)
 
     # Create episode_logs directory
-    episode_logs_dir = f"episode_logs"
+    episode_logs_dir = f"episode_logs/{timestamp}"
     os.makedirs(episode_logs_dir, exist_ok=True)
 
     # Create episode_log.csv
-    log_filename = f'episode_logs/{job_id}_{type}_{timestamp}_episode_log.csv'
+    log_filename = f'episode_logs/{timestamp}/{job_id}_{type}_episode_log.csv'
     if not os.path.exists(log_filename):
         with open(log_filename, 'w', newline='') as csvfile:
             writer = csv.writer(csvfile)
             # Updated header with level information
-            writer.writerow(['episode', 'total_reward', 'duration', 'start_level', 'end_level'])
+            writer.writerow(['episode', 'total_reward', 'episode duration', 'total duration', 'start_level', 'end_level'])
 
     # Set transitions.csv path
-    transitions_filename = f'episode_logs/{job_id}_{type}_{timestamp}/transitions.h5'
+    transitions_filename = f'episode_logs/{timestamp}/{job_id}_{type}/transitions.h5'
 
-    os.makedirs(f"checkpoints", exist_ok=True)
-    checkpoints_dir = f"checkpoints/{job_id}_{type}_{timestamp}"
+    os.makedirs(f"checkpoints/{timestamp}", exist_ok=True)
+    checkpoints_dir = f"checkpoints/{timestamp}/{job_id}_{type}"
     os.makedirs(checkpoints_dir, exist_ok=True)
 
     return frames_dir, checkpoints_dir, log_filename, transitions_filename
+
+# def count_time(start_time, num_frames, env_info, ):
+
 
 def episode_writer_thread(episode_queue, log_filename):
     with open(log_filename, 'a', newline='') as csvfile:
