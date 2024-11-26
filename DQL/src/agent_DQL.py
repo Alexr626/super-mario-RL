@@ -11,48 +11,68 @@ from utils.config import *
 from collections import namedtuple
 
 class Agent_DQL:
-    def __init__(self, action_size):
+    def __init__(self, action_size,
+                 input_dims,
+                 num_actions,
+                 lr=LEARNING_RATE,
+                 gamma=GAMMA,
+                 epsilon=EPS_START,
+                 eps_decay=EPS_DECAY,
+                 eps_min=EPS_END,
+                 replay_buffer_capacity=MEMORY_CAPACITY,
+                 batch_size=BATCH_SIZE,
+                 sync_network_rate=SYNC_NETWORK_RATE):
         self.action_size = action_size
         self.policy_net = DQN(action_size).to(DEVICE)
         self.target_net = DQN(action_size).to(DEVICE)
-        self.optimizer = optim.Adam(self.policy_net.parameters(), lr=LEARNING_RATE)
-        self.memory = ReplayMemory(MEMORY_CAPACITY)
+        self.optimizer = optim.Adam(self.policy_net.parameters(), lr=lr)
+        self.memory = ReplayMemory(replay_buffer_capacity)
         self.steps_done = 0
         self.update_target_net()
         self.loss = nn.HuberLoss()
 
+        self.epsilon = epsilon
+        self.eps_decay = eps_decay
+        self.eps_min = eps_min
+
+        self.gamma = gamma
+        self.batch_size = batch_size
+
+    def decay_epsilon(self):
+        self.epsilon = max(self.epsilon * self.eps_decay, self.eps_min)
+
     def select_action(self, state):
-        eps = EPS_END + (EPS_START - EPS_END) * \
-              max(0, (EPS_DECAY - self.steps_done) / EPS_DECAY)
+        self.decay_epsilon()
 
         self.steps_done += 1
 
         observation = torch.tensor(np.array(state), dtype=torch.float32) \
+            .unsqueeze(0) \
             .to(self.policy_net.device)
 
-        if random.random() > eps:
+        if random.random() > self.epsilon:
             with torch.no_grad():
                 action = self.policy_net(observation).argmax(1).item()  # Return scalar
         else:
             action = random.randrange(self.action_size)
 
-        return action, eps
+        return action, self.epsilon
 
     def sync_networks(self):
         if self.learn_step_counter % self.sync_network_rate == 0 and self.learn_step_counter > 0:
             self.target_network.load_state_dict(self.online_network.state_dict())
 
     def optimize_model(self):
-        if len(self.memory) < BATCH_SIZE:
+        if len(self.memory) < self.batch_size:
             return
 
-        transitions = self.memory.sample(BATCH_SIZE)
+        transitions = self.memory.sample(self.batch_size)
 
         keys = ("state", "action", "reward", "next_state", "done")
 
         states, actions, rewards, next_states, dones = [transitions[key] for key in keys]
-        print(states.shape)
-        print(next_states.shape)
+        # print(states.shape)
+        # print(next_states.shape)
 
         states = states.squeeze(-1)
         next_states = next_states.squeeze(-1)
@@ -68,7 +88,7 @@ class Agent_DQL:
             next_state_values[dones] = 0.0  # Zero out terminal states
 
         # Compute the expected Q values
-        expected_state_action_values = rewards + (GAMMA * next_state_values) * (1 - dones.float())
+        expected_state_action_values = rewards + (self.gamma * next_state_values) * (1 - dones.float())
 
         # Optimize model
         loss = self.loss(state_action_values, expected_state_action_values)

@@ -11,10 +11,10 @@ class Agent_DDQL:
     def __init__(self, 
                  input_dims, 
                  num_actions, 
-                 lr=0.00025, 
-                 gamma=0.9, 
+                 lr=LEARNING_RATE,
+                 gamma=GAMMA,
                  epsilon=EPS_START,
-                 eps_decay=0.99999975, 
+                 eps_decay=EPS_DECAY,
                  eps_min=EPS_END,
                  replay_buffer_capacity=MEMORY_CAPACITY,
                  batch_size=BATCH_SIZE,
@@ -48,14 +48,9 @@ class Agent_DDQL:
     def choose_action(self, observation):
         if np.random.random() < self.epsilon:
             return np.random.randint(self.num_actions)
-        # Passing in a list of numpy arrays is slower than creating a tensor from a numpy array
-        # Hence the `np.array(observation)` instead of `observation`
-        # observation is a LIST of numpy arrays because of the LazyFrame wrapper
-        # Unqueeze adds a dimension to the tensor, which represents the batch dimension
         observation = torch.tensor(np.array(observation), dtype=torch.float32) \
                         .unsqueeze(0) \
                         .to(self.online_network.device)
-        # Grabbing the index of the action that's associated with the highest Q-value
         return self.online_network(observation).argmax().item()
     
     def decay_epsilon(self):
@@ -94,8 +89,8 @@ class Agent_DDQL:
 
         states, actions, rewards, next_states, dones = [samples[key] for key in keys]
 
-        print(states.shape)
-        print(next_states.shape)
+        # print(states.shape)
+        # print(next_states.shape)
 
         predicted_q_values = self.online_network(states) # Shape is (batch_size, n_actions)
         predicted_q_values = predicted_q_values[np.arange(self.batch_size), actions.squeeze()]
