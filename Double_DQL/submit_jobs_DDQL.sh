@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Master script to submit 50 SLURM jobs with varying resources
+# Master script to submit 5*JOBS_PER_VARIATION SLURM jobs with varying resources
 
 # Base parameters
 ACCOUNT="liu32_1378"
@@ -9,7 +9,7 @@ OUTPUT_DIR="$HOME/output/DDQL"
 JOB_SCRIPT="$PROJECT_DIR/run_mario_DDQL.job"
 
 # Number of jobs per variation
-JOBS_PER_VARIATION=10
+JOBS_PER_VARIATION=2
 
 JOB_ID=1
 
@@ -43,7 +43,7 @@ for i in $(seq 1 ${JOBS_PER_VARIATION}); do
     JOB_NAME="mario_rl_mem16"
     MEM="16G"
     GPUS="1"
-    TIME_LIMIT="6:00:00"
+    TIME_LIMIT="48:00:00"
     submit_job "${JOB_NAME}" "${MEM}" "${GPUS}" "${TIME_LIMIT}" "${i}" "${JOB_ID}"
     JOB_ID=$((JOB_ID + 1))
 done
@@ -53,7 +53,7 @@ for i in $(seq 1 ${JOBS_PER_VARIATION}); do
     JOB_NAME="mario_rl_gpu2"
     MEM="32G"
     GPUS="2"
-    TIME_LIMIT="6:00:00"
+    TIME_LIMIT="24:00:00"
     submit_job "${JOB_NAME}" "${MEM}" "${GPUS}" "${TIME_LIMIT}" "${i}" "${JOB_ID}"
     JOB_ID=$((JOB_ID + 1))
 done
@@ -63,7 +63,7 @@ for i in $(seq 1 ${JOBS_PER_VARIATION}); do
     JOB_NAME="mario_rl_time3h"
     MEM="32G"
     GPUS="1"
-    TIME_LIMIT="3:00:00"
+    TIME_LIMIT="24:00:00"
     submit_job "${JOB_NAME}" "${MEM}" "${GPUS}" "${TIME_LIMIT}" "${i}" "${JOB_ID}"
     JOB_ID=$((JOB_ID + 1))
 done
@@ -73,7 +73,7 @@ for i in $(seq 1 ${JOBS_PER_VARIATION}); do
     JOB_NAME="mario_rl_time12h"
     MEM="32G"
     GPUS="1"
-    TIME_LIMIT="12:00:00"
+    TIME_LIMIT="24:00:00"
     submit_job "${JOB_NAME}" "${MEM}" "${GPUS}" "${TIME_LIMIT}" "${i}" "${JOB_ID}"
     JOB_ID=$((JOB_ID + 1))
 done
@@ -83,7 +83,7 @@ for i in $(seq 1 ${JOBS_PER_VARIATION}); do
     JOB_NAME="mario_rl_standard"
     MEM="32G"
     GPUS="1"
-    TIME_LIMIT="6:00:00"
+    TIME_LIMIT="48:00:00"
     submit_job "${JOB_NAME}" "${MEM}" "${GPUS}" "${TIME_LIMIT}" "${i}" "${JOB_ID}"
     JOB_ID=$((JOB_ID + 1))
 done

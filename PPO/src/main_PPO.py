@@ -11,9 +11,11 @@ from PIL import Image
 from utils.config import *
 from utils.utils import *
 
+
 def train(job_id):
     type = "PPO"
     torch.manual_seed(123)
+    np.random.seed(123)
     timestamp = datetime.now().strftime('%m%d_%H%M%S')
 
     frames_dir, checkpoints_dir, log_filename, transitions_filename = (
@@ -97,5 +99,5 @@ if __name__ == "__main__":
     job_id = args.job_id
 
     # Test
-    job_id = 5
+    # job_id = 5
     train(job_id)

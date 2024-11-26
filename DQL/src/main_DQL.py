@@ -13,28 +13,19 @@ import torch.profiler
 import argparse
 import h5py
 
-def train(transitions):
 
-    parser = argparse.ArgumentParser(description="Super Mario RL Training")
-    parser.add_argument('--job_id', type=int, required=True, help='Unique Job ID')
-    args = parser.parse_args()
-    job_id = args.job_id
-
-    # Test
-    # job_id = 5
-
+def train(transitions, job_id):
+    type = "DQL"
+    torch.manual_seed(123)
+    np.random.seed(123)
     # Generate a timestamp for the current training run
     timestamp = datetime.now().strftime('%m%d_%H%M%S')
-
-    type = "DQL"
-
-    # Create environment
-    env = make_env()
 
     # Create directories and get filenames
     frames_dir, checkpoints_dir, log_filename, transitions_filename = (
         create_save_files_directories(timestamp, job_id, type))
 
+    env = make_env()
     agent = Agent_DQL(env.action_space.n)
 
     if transitions:
@@ -60,36 +51,32 @@ def train(transitions):
 
         transitions_buffer = []
 
+    start_time = time.time()
+
     for episode in range(NUM_EPISODES):
         reset_result = env.reset()
         state, info = reset_result
         state = np.array(state).squeeze(-1)
-        print(state.shape)
-
-
-        # Convert the initial state to a tensor
-        # frames_array = np.array(state._frames)
-        # state = torch.from_numpy(frames_array).unsqueeze(0).float().squeeze(-1)
+        # print(state.shape)
 
         episode_start_time = time.time()
         frame_counter = 0
         total_reward = 0
         done = False
-        start_level = info.get('level', 'unknown')  # Replace 'level' with the correct key if different
-        current_level = start_level
 
         while not done:
             frame_counter += 1
 
             action, eps = agent.select_action(state)
+
             next_state, reward, terminated, truncated, info = env.step(action)
+
+            if frame_counter == 1:
+                start_world = str(info['world']) + "_" + str(info['stage'])  # Replace 'stage' with the correct key if different
+
             next_state = np.array(next_state).squeeze(-1)
-            done = terminated or truncated
-
-            # Extract current_level from info
-            current_level = info.get('level', current_level)  # Update current_level if 'level' is present
-
-            next_state_tensor = next_state
+            done = terminated
+            current_world = str(info['world']) + "_" + str(info['stage'])
             reward_tensor = torch.tensor([reward], dtype=torch.float32)
             done_tensor = torch.tensor([done], dtype=torch.bool)
 
@@ -108,7 +95,7 @@ def train(transitions):
                 transitions_buffer.append(transition_data)
 
             agent.optimize_model()
-            state = next_state_tensor
+            state = next_state
             total_reward += reward
 
             # Save frame at intervals
@@ -117,7 +104,7 @@ def train(transitions):
                 if frame is not None:
                     try:
                         image = Image.fromarray(frame)
-                        image_filename = os.path.join(frames_dir, f"episode_{episode}_step_{frame_counter}_level_{current_level}.png")
+                        image_filename = os.path.join(frames_dir, f"episode_{episode}_step_{frame_counter}_level_{current_world}.png")
                         image.save(image_filename)
                     except Exception as e:
                         print(f"Error saving frame: {e}")
@@ -126,14 +113,15 @@ def train(transitions):
             if agent.steps_done % TARGET_UPDATE == 0:
                 agent.update_target_net()
 
-        # At the end of the episode, set end_level
-        end_level = current_level
+        # At the end of the episode, set end_world
+        end_world = current_world
 
-        # Calculate episode duration
+        # Calculate durations
         episode_duration = time.time() - episode_start_time
+        total_duration = time.time() - start_time
 
         # Log episode statistics
-        episode_data = [episode, total_reward, episode_duration, start_level, end_level]
+        episode_data = [episode, total_reward, episode_duration, total_duration, start_world, end_world]
         with open(log_filename, 'a', newline='') as csvfile:
             writer = csv.writer(csvfile)
             writer.writerow(episode_data)
@@ -151,13 +139,22 @@ def train(transitions):
 
         # Save model checkpoint at intervals
         if (episode + 1) % SAVE_INTERVAL == 0:
-            save_model(agent.policy_net, f"{checkpoints_dir}/mario_dqn_{episode}.pth")
+            save_model(agent.policy_net, os.path.join(checkpoints_dir, f"/mario_dqn_{episode}.pth"))
 
         # Print episode summary
-        print(f"Episode {episode}: Total Reward = {total_reward}, Duration = {episode_duration:.2f}s, Start Level = {start_level}, End Level = {end_level}")
+        print(f"Episode {episode}: Total Reward = {total_reward}, Episode Duration = {episode_duration:.2f}s, "
+              f"Total Duration = {total_duration:.2f}s, Start stage = {start_world}, End stage = {end_world}")
 
         # hdf5_file.close()
     env.close()
 
 if __name__ == "__main__":
-    train(transitions=False)
+    parser = argparse.ArgumentParser(description="Super Mario RL Training")
+    parser.add_argument('--job_id', type=int, required=True, help='Unique Job ID')
+    args = parser.parse_args()
+    job_id = args.job_id
+
+    # Test
+    # job_id = 5
+
+    train(transitions=False, job_id=job_id)

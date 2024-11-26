@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Master script to submit 50 SLURM jobs with varying resources
+# Master script to submit 5*JOBS_PER_VARIATION SLURM jobs with varying resources
 
 # Base parameters
 ACCOUNT="liu32_1378"
@@ -9,7 +9,7 @@ OUTPUT_DIR="$HOME/output/DQL"
 JOB_SCRIPT="$PROJECT_DIR/run_mario_DQL.job"
 
 # Number of jobs per variation
-JOBS_PER_VARIATION=10
+JOBS_PER_VARIATION=2
 
 JOB_ID=1
 
@@ -38,52 +38,52 @@ submit_job() {
         ${JOB_SCRIPT}
 }
 
-# 1. Submit 10 jobs with 16G memory instead of 32G
+# 1. Submit jobs with 16G memory instead of 32G
 for i in $(seq 1 ${JOBS_PER_VARIATION}); do
     JOB_NAME="mario_rl_mem16"
     MEM="16G"
     GPUS="1"
-    TIME_LIMIT="6:00:00"
+    TIME_LIMIT="48:00:00"
     submit_job "${JOB_NAME}" "${MEM}" "${GPUS}" "${TIME_LIMIT}" "${i}" "${JOB_ID}"
     JOB_ID=$((JOB_ID + 1))
 done
 
-# 2. Submit 10 jobs requesting 2 GPUs instead of 1
+# 2. Submit jobs requesting 2 GPUs instead of 1
 for i in $(seq 1 ${JOBS_PER_VARIATION}); do
     JOB_NAME="mario_rl_gpu2"
     MEM="32G"
     GPUS="2"
-    TIME_LIMIT="6:00:00"
+    TIME_LIMIT="24:00:00"
     submit_job "${JOB_NAME}" "${MEM}" "${GPUS}" "${TIME_LIMIT}" "${i}" "${JOB_ID}"
     JOB_ID=$((JOB_ID + 1))
 done
 
-# 3. Submit 10 jobs with a 3-hour time limit instead of 6
+# 3. Submit jobs with a 3-hour time limit instead of 6
 for i in $(seq 1 ${JOBS_PER_VARIATION}); do
     JOB_NAME="mario_rl_time3h"
     MEM="32G"
     GPUS="1"
-    TIME_LIMIT="3:00:00"
+    TIME_LIMIT="24:00:00"
     submit_job "${JOB_NAME}" "${MEM}" "${GPUS}" "${TIME_LIMIT}" "${i}" "${JOB_ID}"
     JOB_ID=$((JOB_ID + 1))
 done
 
-# 4. Submit 10 jobs with a 12-hour time limit instead of 6
+# 4. Submit jobs with a 12-hour time limit instead of 6
 for i in $(seq 1 ${JOBS_PER_VARIATION}); do
     JOB_NAME="mario_rl_time12h"
     MEM="32G"
     GPUS="1"
-    TIME_LIMIT="12:00:00"
+    TIME_LIMIT="24:00:00"
     submit_job "${JOB_NAME}" "${MEM}" "${GPUS}" "${TIME_LIMIT}" "${i}" "${JOB_ID}"
     JOB_ID=$((JOB_ID + 1))
 done
 
-# 5. Submit 10 standard jobs (32G, 1 GPU, 6-hour time limit)
+# 5. Submit standard jobs (32G, 1 GPU, 6-hour time limit)
 for i in $(seq 1 ${JOBS_PER_VARIATION}); do
     JOB_NAME="mario_rl_standard"
     MEM="32G"
     GPUS="1"
-    TIME_LIMIT="6:00:00"
+    TIME_LIMIT="48:00:00"
     submit_job "${JOB_NAME}" "${MEM}" "${GPUS}" "${TIME_LIMIT}" "${i}" "${JOB_ID}"
     JOB_ID=$((JOB_ID + 1))
 done
