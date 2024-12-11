@@ -20,6 +20,8 @@ conda activate super-mario-RL
 
 export PYTHONPATH=$HOME/super-mario-RL:$PYTHONPATH
 
+
+
 echo "Conda version: $(conda --version)"
 echo "Active Conda Environment: $(conda info --envs | grep '*' | awk '{print $1}')"
 python --version
@@ -27,6 +29,6 @@ echo "Python executable: $(which python)"
 echo "PYTHONPATH: $PYTHONPATH"
 echo "JOB_ID: $JOB_ID"
 
-cd $HOME/super-mario-RL/Double_DQL
+cd $HOME/super-mario-RL
 
-python main_DDQL.py --job_id $JOB_ID
+python DDQL/main_DDQL.py --job_id $JOB_ID --config_version "$CONFIG_VERSION"

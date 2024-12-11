@@ -10,7 +10,7 @@ JOB_SCRIPT="$PROJECT_DIR/run_mario_DQL.job"
 
 # Number of test jobs
 TEST_JOBS=1
-CONFIG_VERSION=1
+CONFIG_VERSION=3
 JOB_ID=1
 
 # Ensure the output directory exists
@@ -40,12 +40,11 @@ submit_test_job() {
 }
 
 # Submit a single test job
-JOB_NAME="mario_rl_test"
-MEM="16G"
+JOB_NAME="mario_rl_DQL_conf3"
+MEM="32G"
 GPUS="1"
-TIME_LIMIT="1:00:00"
+TIME_LIMIT="48:00:00"
 INDEX=1
-CONFIG_VERSION=1
 OUTPUT_FILE="${OUTPUT_DIR}/output_test_config_${CONFIG_VERSION}.log"
 submit_test_job "${JOB_NAME}" "${MEM}" "${GPUS}" "${TIME_LIMIT}" "${INDEX}" "${JOB_ID}" "${CONFIG_VERSION}" "${OUTPUT_FILE}"
 

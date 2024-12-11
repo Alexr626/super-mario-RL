@@ -4,9 +4,9 @@
 
 # Base parameters
 ACCOUNT="liu32_1378"
-PROJECT_DIR="$HOME/super-mario-RL/DQL"
-OUTPUT_DIR="$HOME/output/DQL"
-JOB_SCRIPT="$PROJECT_DIR/run_mario_DQL.job"
+PROJECT_DIR="$HOME/super-mario-RL/DDQL"
+OUTPUT_DIR="$HOME/output/DDQL"
+JOB_SCRIPT="$PROJECT_DIR/run_mario_DDQL.job"
 
 # Number of test jobs
 TEST_JOBS=1
@@ -26,7 +26,7 @@ submit_test_job() {
     local job_id=$6
     local config_version=$7
     local output_file=$8
-    local type="DQL"
+    local type="DDQL"
 
     sbatch \
         --job-name="${job_name}_${index}_${type}" \
@@ -40,12 +40,11 @@ submit_test_job() {
 }
 
 # Submit a single test job
-JOB_NAME="mario_rl_test"
-MEM="16G"
+JOB_NAME="mario_rl_DDQL_conf1"
+MEM="32G"
 GPUS="1"
-TIME_LIMIT="1:00:00"
+TIME_LIMIT="48:00:00"
 INDEX=1
-CONFIG_VERSION=1
 OUTPUT_FILE="${OUTPUT_DIR}/output_test_config_${CONFIG_VERSION}.log"
 submit_test_job "${JOB_NAME}" "${MEM}" "${GPUS}" "${TIME_LIMIT}" "${INDEX}" "${JOB_ID}" "${CONFIG_VERSION}" "${OUTPUT_FILE}"
 

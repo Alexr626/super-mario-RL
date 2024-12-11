@@ -4,13 +4,13 @@
 
 # Base parameters
 ACCOUNT="liu32_1378"
-PROJECT_DIR="$HOME/super-mario-RL/DQL"
-OUTPUT_DIR="$HOME/output/DQL"
-JOB_SCRIPT="$PROJECT_DIR/run_mario_DQL.job"
+PROJECT_DIR="$HOME/super-mario-RL/DDQL"
+OUTPUT_DIR="$HOME/output/DDQL"
+JOB_SCRIPT="$PROJECT_DIR/run_mario_DDQL.job"
 
 # Number of test jobs
 TEST_JOBS=1
-CONFIG_VERSION=1
+
 JOB_ID=1
 
 # Ensure the output directory exists
@@ -24,8 +24,7 @@ submit_test_job() {
     local time_limit=$4
     local index=$5
     local job_id=$6
-    local config_version=$7
-    local output_file=$8
+    local output_file=$7
     local type="DQL"
 
     sbatch \
@@ -35,7 +34,7 @@ submit_test_job() {
         --time=${time_limit} \
         --account=${ACCOUNT} \
         --output="${output_file}" \
-        --export=JOB_ID=${job_id},CONFIG_VERSION=${config_version} \
+        --export=JOB_ID=${job_id} \
         ${JOB_SCRIPT}
 }
 
@@ -45,8 +44,7 @@ MEM="16G"
 GPUS="1"
 TIME_LIMIT="1:00:00"
 INDEX=1
-CONFIG_VERSION=1
-OUTPUT_FILE="${OUTPUT_DIR}/output_test_config_${CONFIG_VERSION}.log"
-submit_test_job "${JOB_NAME}" "${MEM}" "${GPUS}" "${TIME_LIMIT}" "${INDEX}" "${JOB_ID}" "${CONFIG_VERSION}" "${OUTPUT_FILE}"
+OUTPUT_FILE="${OUTPUT_DIR}/output_test_${INDEX}.log"
+submit_test_job "${JOB_NAME}" "${MEM}" "${GPUS}" "${TIME_LIMIT}" "${INDEX}" "${JOB_ID}" "${OUTPUT_FILE}"
 
 echo "Test job has been submitted."

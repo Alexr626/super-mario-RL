@@ -1,31 +1,13 @@
-# config.py
-
 import torch
 
-# General
-ENV_NAME = 'SuperMarioBros-v0'
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-BATCH_SIZE = 64
-NUM_EPOCHS = 2
-GAMMA = 0.99
-TARGET_UPDATE = 10000
-LEARNING_RATE = 1e-4
-NUM_EPISODES = 1000000
-SAVE_INTERVAL = 1000
-TRANSITION_SAVE_INTERVAL = 100
-DISPLAY = False
-
-# DQL/DDQL
-EPS_START = 1.0
-EPS_END = 0.1
-EPS_DECAY = 0.99999975
-MEMORY_CAPACITY = 100000
-SYNC_NETWORK_RATE = 10000
-BUFFER_SIZE = 100
-SHOULD_TRAIN = True
-
-# PPO
-BETA = 0.01
-TAU = 0.95
-EPS_PPO = 0.2
-
+ENV_NAME = 'SuperMarioBros-v0'
+DISPLAY = True
+STAGES = [
+    '1-1', '1-2', '1-3', '1-4',
+    '2-1', '2-2', '2-3', '2-4',
+    '3-1', '3-2', '3-3', '3-4',
+    '4-1', '4-2', '4-3', '4-4',
+    '5-1', '5-2', '5-3', '5-4',
+    '6-1', '6-2', '6-3', '6-4'
+]
